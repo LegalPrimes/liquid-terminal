@@ -16,7 +16,7 @@ Liquid Terminal brings that sweet, sweet gaussian blur, those crispy glass edges
 - **Tabbed Interface** - Because one terminal is never enough
 - **Process Tracking** - Window title shows what's actually running (mind = blown)
 - **Smooth as Butter** - Elastic animations that would make Jony Ive shed a tear
-- **Dark Mode Ready** - It's 2024, of course it works in dark mode
+- **Dark Mode Ready** - It's 2025, of course it works in dark mode
 
 ## 🚀 Installation
 
