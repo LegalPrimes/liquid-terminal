@@ -24,6 +24,25 @@ Liquid Terminal brings that sweet, sweet gaussian blur, those crispy glass edges
 
 Head over to the [Releases](https://github.com/yourusername/liquid-terminal/releases) page and grab the latest `.dmg` for macOS.
 
+#### ⚠️ macOS Security Notice
+
+The app is unsigned (because Apple charges $99/year for the privilege). Here's how to open it:
+
+**Option 1 - Right-click method (Recommended):**
+1. Right-click (or Control-click) on Liquid Terminal.app
+2. Select "Open" from the context menu
+3. Click "Open" in the dialog that appears
+
+**Option 2 - System Preferences:**
+1. Try to open the app normally (it will be blocked)
+2. Go to System Preferences → Privacy & Security
+3. Click "Open Anyway" next to the message about Liquid Terminal
+
+**Option 3 - Terminal (if nothing else works):**
+```bash
+xattr -c "/Applications/Liquid Terminal.app"
+```
+
 ### Build from Source
 
 ```bash
