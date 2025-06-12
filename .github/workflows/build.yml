@@ -1,0 +1,86 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Rebuild native modules
+      run: ./node_modules/.bin/electron-rebuild
+      
+    - name: Build TypeScript
+      run: npm run build
+      
+    - name: Build Electron app
+      run: npm run dist
+      env:
+        CSC_IDENTITY_AUTO_DISCOVERY: false
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: liquid-terminal-mac
+        path: |
+          dist/*.dmg
+          dist/*.zip
+          
+  release:
+    needs: build-mac
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: liquid-terminal-mac
+        path: dist/
+        
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          ## 🫧 Liquid Terminal Release
+          
+          ### What's New
+          - Check the commit history for changes
+          
+          ### Installation
+          - Download the `.dmg` file below
+          - Open and drag Liquid Terminal to your Applications folder
+          - Enjoy your glassy goodness! ✨
+        draft: false
+        prerelease: false
+        
+    - name: Upload Release Assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/Liquid Terminal-*.dmg
+        asset_name: Liquid-Terminal-${{ github.ref_name }}.dmg
+        asset_content_type: application/x-apple-diskimage

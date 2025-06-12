@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Liquid Terminal</title>
+  <link rel="stylesheet" href="node_modules/@xterm/xterm/css/xterm.css">
+  <link rel="stylesheet" href="liquid-glass.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      background: transparent;
+      overflow: hidden;
+      user-select: none;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      border: none;
+    }
+
+    .container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .title-bar {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      -webkit-app-region: drag;
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      z-index: 10;
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 8px;
+      -webkit-app-region: no-drag;
+    }
+
+    .window-control {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .window-control::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), transparent);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .window-control:hover::before {
+      opacity: 1;
+    }
+
+    .close {
+      background: #ff5f57;
+    }
+
+    .minimize {
+      background: #ffbd2e;
+    }
+
+    .maximize {
+      background: #28ca42;
+    }
+
+    .window-control:hover {
+      transform: scale(1.1);
+      filter: brightness(1.1) saturate(1.2);
+    }
+
+    .title {
+      flex: 1;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 
+        0 1px 2px rgba(0, 0, 0, 0.8),
+        0 0 8px rgba(0, 0, 0, 0.4);
+    }
+
+    #tab-bar {
+      display: none;
+      align-items: center;
+      padding: 0 10px;
+      height: 36px;
+      gap: 4px;
+      overflow-x: auto;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .tab {
+      display: flex;
+      align-items: center;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 120px;
+      max-width: 200px;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tab:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .tab.active {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.4);
+      box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.2),
+        inset 0 1px 2px rgba(255, 255, 255, 0.2);
+    }
+
+    .tab-title {
+      flex: 1;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.9);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 
+        0 1px 2px rgba(0, 0, 0, 0.8),
+        0 0 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .tab-close {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      line-height: 1;
+      transition: all 0.2s ease;
+    }
+
+    .tab-close:hover {
+      background: rgba(255, 100, 100, 0.3);
+      color: rgba(255, 255, 255, 1);
+      transform: scale(1.1);
+    }
+
+    #terminals {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      padding: 15px;
+    }
+
+    .terminal-container {
+      position: absolute;
+      inset: 15px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    /* Apply terminal glass style from liquid-glass.css */
+    .terminal-container.terminal-glass {
+      /* Inherits from liquid-glass.css */
+    }
+
+    /* Terminal transparency */
+    .xterm,
+    .xterm-viewport,
+    .xterm-screen,
+    .xterm-helpers,
+    .xterm .xterm-screen canvas {
+      background-color: transparent !important;
+      background: transparent !important;
+    }
+    
+    .xterm {
+      padding: 15px;
+      height: 100%;
+    }
+
+    /* Text and cursor effects */
+    .xterm-rows {
+      text-shadow: 
+        0 1px 2px rgba(0, 0, 0, 0.8),
+        0 0 8px rgba(0, 0, 0, 0.4);
+      transform: translateZ(0);
+      will-change: transform;
+    }
+    
+    .xterm-cursor-layer {
+      filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.9)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+    }
+  </style>
+</head>
+<body>
+  <!-- SVG Filters for liquid glass effects -->
+  <svg class="liquid-glass-filters" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- Displacement map for liquid effect -->
+      <filter id="liquid-displacement">
+        <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="2" result="turbulence" />
+        <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="30" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      
+      <!-- Chromatic aberration filter -->
+      <filter id="chromatic-aberration">
+        <feOffset in="SourceGraphic" dx="2" dy="0" result="red" />
+        <feOffset in="SourceGraphic" dx="-2" dy="0" result="blue" />
+        <feBlend mode="screen" in="red" in2="blue" />
+      </filter>
+    </defs>
+  </svg>
+
+  <div class="liquid-glass container" id="liquid-glass">
+    <!-- Glass edge highlights -->
+    <div class="glass-edge"></div>
+    
+    <!-- Liquid effect layer -->
+    <div class="liquid-effect"></div>
+    
+    <div class="title-bar">
+      <div class="window-controls">
+        <button class="window-control close" id="close-btn"></button>
+        <button class="window-control minimize" id="minimize-btn"></button>
+        <button class="window-control maximize" id="maximize-btn"></button>
+      </div>
+      <div class="title">Liquid Terminal</div>
+    </div>
+    <div id="tab-bar"></div>
+    <div id="terminals"></div>
+  </div>
+  
+  <script>
+    // Liquid glass mouse interaction
+    const liquidGlass = document.getElementById('liquid-glass');
+    const liquidEffect = liquidGlass.querySelector('.liquid-effect');
+    
+    // Enhanced mouse tracking with elasticity
+    let mouseX = 50;
+    let mouseY = 50;
+    let currentX = 50;
+    let currentY = 50;
+    
+    liquidGlass.addEventListener('mousemove', (e) => {
+      const rect = liquidGlass.getBoundingClientRect();
+      mouseX = ((e.clientX - rect.left) / rect.width) * 100;
+      mouseY = ((e.clientY - rect.top) / rect.height) * 100;
+    });
+    
+    // Elastic animation loop
+    function animate() {
+      // Elastic following with damping
+      const elasticity = 0.15;
+      currentX += (mouseX - currentX) * elasticity;
+      currentY += (mouseY - currentY) * elasticity;
+      
+      // Update CSS variables
+      liquidGlass.style.setProperty('--mouse-x', `${currentX}%`);
+      liquidGlass.style.setProperty('--mouse-y', `${currentY}%`);
+      
+      // Apply subtle transform based on mouse position
+      const transformX = (currentX - 50) * 0.02;
+      const transformY = (currentY - 50) * 0.02;
+      
+      liquidEffect.style.transform = `
+        translate(${transformX}%, ${transformY}%)
+        scale(${1 + Math.abs(transformX) * 0.001 + Math.abs(transformY) * 0.001})
+      `;
+      
+      requestAnimationFrame(animate);
+    }
+    
+    animate();
+    
+    require('./dist/renderer.js');
+  </script>
+</body>
+</html>

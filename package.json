@@ -1,0 +1,70 @@
+{
+  "name": "liquid-terminal",
+  "version": "1.0.0",
+  "description": "Electron terminal emulator with liquid glass design",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && electron .",
+    "dev": "tsc -w & electron . --dev",
+    "typecheck": "tsc --noEmit",
+    "dist": "npm run build && electron-builder",
+    "dist:mac": "npm run build && electron-builder --mac"
+  },
+  "keywords": [
+    "electron",
+    "terminal",
+    "liquid-glass"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "electron": "^27.0.0",
+    "electron-builder": "^24.13.3",
+    "electron-rebuild": "^3.2.9",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/addon-webgl": "^0.18.0",
+    "@xterm/xterm": "^5.5.0",
+    "liquid-glass": "^1.0.0",
+    "liquid-glass-react": "^1.1.1",
+    "node-pty": "^1.0.0"
+  },
+  "build": {
+    "appId": "com.liquidterminal.app",
+    "productName": "Liquid Terminal",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "dist/**/*",
+      "index.html",
+      "liquid-glass.css",
+      "node_modules/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "icon": "assets/icon.icns",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "darkModeSupport": true
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
+  }
+}

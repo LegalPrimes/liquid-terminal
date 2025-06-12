@@ -1,0 +1,169 @@
+/* Liquid Glass CSS - Mimicking liquid-glass-react */
+
+:root {
+  --glass-blur: 20px;
+  --glass-saturation: 180%;
+  --glass-brightness: 1.05;
+  --glass-opacity: 0.15;
+  --border-opacity: 0.8;
+  --aberration-intensity: 2px;
+  --displacement-scale: 70;
+  --elasticity: 0.15;
+}
+
+/* Main liquid glass container */
+.liquid-glass {
+  position: relative;
+  
+  /* Glass base effect */
+  background: rgba(255, 255, 255, var(--glass-opacity));
+  backdrop-filter: 
+    blur(var(--glass-blur)) 
+    saturate(var(--glass-saturation)) 
+    brightness(var(--glass-brightness));
+  -webkit-backdrop-filter: 
+    blur(var(--glass-blur)) 
+    saturate(var(--glass-saturation)) 
+    brightness(var(--glass-brightness));
+  
+  /* Multi-layer border for edge refraction */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  
+  /* Complex shadows for depth and glass edge effect */
+  box-shadow: 
+    /* Depth shadow */
+    0 8px 32px rgba(31, 38, 135, 0.2),
+    /* Inner light refraction */
+    inset 0 4px 20px rgba(255, 255, 255, 0.3),
+    /* Bottom shadow for grounding */
+    inset 0 -2px 12px rgba(0, 0, 0, 0.1);
+  
+  /* Smooth corners */
+  border-radius: 12px;
+  
+  /* Performance optimization */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* SVG filters for advanced effects */
+.liquid-glass-filters {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* Chromatic aberration effect */
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: inherit;
+  filter: 
+    blur(0.5px)
+    brightness(1.02)
+    contrast(1.05);
+  opacity: 0.5;
+  z-index: -1;
+  
+  /* Red channel shift */
+  transform: translateX(var(--aberration-intensity));
+  mix-blend-mode: screen;
+}
+
+.liquid-glass::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: inherit;
+  filter: 
+    blur(0.5px)
+    brightness(0.98)
+    contrast(0.95);
+  opacity: 0.5;
+  z-index: -1;
+  
+  /* Blue channel shift */
+  transform: translateX(calc(var(--aberration-intensity) * -1));
+  mix-blend-mode: multiply;
+}
+
+/* Edge highlights that respond to light */
+.glass-edge {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  
+  /* Gradient that simulates light hitting glass edge */
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      transparent 10%,
+      transparent 90%,
+      rgba(255, 255, 255, 0.2) 100%
+    );
+  
+  /* Edge glow */
+  box-shadow: 
+    inset 0 0 20px rgba(255, 255, 255, 0.1);
+  
+  mix-blend-mode: overlay;
+}
+
+/* Refraction displacement map */
+.glass-refraction {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Mouse-responsive liquid effect */
+.liquid-effect {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  
+  background: 
+    radial-gradient(
+      circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(255, 255, 255, 0.2) 0%,
+      rgba(255, 255, 255, 0.1) 20%,
+      transparent 40%
+    );
+  
+  filter: blur(10px);
+  opacity: 0;
+  transition: 
+    opacity 0.3s ease,
+    transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  
+  transform: 
+    translate(
+      calc((var(--mouse-x, 50%) - 50%) * var(--elasticity) * 1%),
+      calc((var(--mouse-y, 50%) - 50%) * var(--elasticity) * 1%)
+    )
+    scale(1.05);
+}
+
+.liquid-glass:hover .liquid-effect {
+  opacity: 1;
+}
+
+/* Terminal specific glass adjustments */
+.terminal-glass {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.1);
+}

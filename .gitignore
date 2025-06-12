@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+out/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Electron-builder
+electron-builder.yml
+build/
+
+# npm
+package-lock.json
+npm-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
