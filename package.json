@@ -8,8 +8,8 @@
     "start": "npm run build && electron .",
     "dev": "tsc -w & electron . --dev",
     "typecheck": "tsc --noEmit",
-    "dist": "npm run build && electron-builder",
-    "dist:mac": "npm run build && electron-builder --mac"
+    "dist": "npm run build && electron-builder --publish never",
+    "dist:mac": "npm run build && electron-builder --mac --publish never"
   },
   "keywords": [
     "electron",
