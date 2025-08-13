@@ -22,7 +22,7 @@ Liquid Terminal brings that sweet, sweet gaussian blur, those crispy glass edges
 
 ### Download the Latest Release
 
-Head over to the [Releases](https://github.com/yourusername/liquid-terminal/releases) page and grab the latest `.dmg` for macOS.
+Head over to the [Releases](https://github.com/pontus-devoteam/liquid-terminal/releases) page and grab the latest `.dmg` for macOS.
 
 #### ⚠️ macOS Security Notice
 
@@ -47,7 +47,7 @@ xattr -c "/Applications/Liquid Terminal.app"
 
 ```bash
 # Clone this beauty
-git clone https://github.com/yourusername/liquid-terminal.git
+git clone https://github.com/pontus-devoteam/liquid-terminal.git
 cd liquid-terminal
 
 # Install dependencies
